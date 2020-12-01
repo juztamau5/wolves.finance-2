@@ -1,3 +1,6 @@
 # Don't ever lint node_modules
 /build
 /node_modules
+
+# Work around hardhat import order problems
+/src/web3/hardhat.ts
