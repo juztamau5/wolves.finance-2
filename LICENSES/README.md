@@ -72,5 +72,6 @@ wolves.finance currently contains files and code licensed under:
 - **[Apache-2.0](Apache-2.0.txt)**: Apache License 2.0
 - **[BSD-3-Clause](BSD-3-Clause.txt)**: BSD 3-Clause license
 - **[GPL-3.0-or-later](GPL-3.0-or-later.txt)**: GNU General Public License v3.0 or later
+- **[MIT](MIT.txt)**: MIT License
 
 These licensing rules were adapted from the **[Linux kernel licensing rules](https://github.com/torvalds/linux/blob/master/Documentation/process/license-rules.rst)**.
