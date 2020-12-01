@@ -15,6 +15,9 @@ require('hardhat-deploy-ethers');
 //const ERC1155_CONTRACT = 'contracts/src/token/Token.sol:WolfToken';
 const TOKEN_CONTRACT = 'WolfToken';
 
+// Path to generated addresses.json file
+const GENERATED_ADDRESSES = 'src/dapp/config/addresses.json';
+
 const func = async function (hardhat_re) {
   const { deployments, getNamedAccounts } = hardhat_re;
 
@@ -43,6 +46,13 @@ const func = async function (hardhat_re) {
     },
     */
   });
+
+  const addresses = {
+    token: token_receipt.address.toLowerCase(),
+  };
+
+  // Generate addresses.json file
+  fs.writeFileSync(GENERATED_ADDRESSES, JSON.stringify(addresses));
 };
 
 module.exports = func;

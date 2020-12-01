@@ -17,4 +17,7 @@
 # Misc
 .DS_Store
 .vscode
-bin
+/bin
+
+# Secret environment variables. Don't commit this to git
+.env

@@ -51,3 +51,23 @@ Applies automated formatting tools (prettier, eslint).
 ### `yarn lint`
 
 Runs linting tools for the project.
+
+### `yarn compile`
+
+Compiles the smart contracts.
+
+### `yarn local-node`
+
+Launches a local Ethereum VM for testing.
+
+### `yarn hardhat:deploy`
+
+Performs a test deployment on a temporary network. This causes `addresses.json` to be generated.
+
+Contracts can be deployed on the following networks:
+
+- `yarn local:deploy`
+- `yarn rinkeby:deploy`
+- `yarn ropsten:deploy`
+- `yarn kovan:deploy`
+- `yarn goerli:deploy`
