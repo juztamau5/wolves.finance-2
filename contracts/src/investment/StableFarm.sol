@@ -8,27 +8,33 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
+//import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/SafeERC20.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/Initializable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
 
 import './interfaces/IController.sol';
 import './interfaces/IFarm.sol';
 import './interfaces/IStrategy.sol';
 
-contract StableCoinFarm is IFarm, ERC20, Ownable {
+contract StableCoinFarm is
+  Initializable,
+  IFarm,
+  ERC20Upgradeable /*, Ownable */
+{
   using SafeERC20 for IERC20;
   using Address for address;
   using SafeMath for uint256;
 
   bool paused = false; // pause deposit / withdraw
-  uint256 immutable to18;
+  uint256 to18;
 
   address[] strategies;
   address public currentStrategy;
-  address public immutable assetToken;
+  address public assetToken;
 
   struct UserData {
     uint256 depositStartBlock;
@@ -44,13 +50,16 @@ contract StableCoinFarm is IFarm, ERC20, Ownable {
   event Invest(address token, uint256 amountIn, uint256 amountOut);
   event Redeem(address token, uint256 amountIn, uint256 amountOut);
 
-  constructor(
+  function initialize(
     string memory name,
     string memory symbol,
     uint8 decimals,
     address token
-  ) ERC20(name, symbol) {
+  ) public initializer {
+    // Initialize ERC20Upgradeable base
+    __ERC20_init(name, symbol);
     _setupDecimals(decimals);
+
     to18 = uint256(10)**(18 - decimals);
     assetToken = token;
   }
@@ -64,7 +73,9 @@ contract StableCoinFarm is IFarm, ERC20, Ownable {
     return name();
   }
 
-  function withdrawAll() external onlyOwner {
+  function withdrawAll(
+    address payable payableOwner /*onlyOwner*/
+  ) external {
     // ASSETS
     if (currentStrategy != address(0)) {
       _redeem(IStrategy(currentStrategy).balanceOf(assetToken, address(this)));
@@ -75,7 +86,7 @@ contract StableCoinFarm is IFarm, ERC20, Ownable {
       );
     }
     // ETH
-    address payable payableOwner = payable(owner());
+    //address payable payableOwner = payable(owner());
     payableOwner.transfer(address(this).balance);
   }
 
@@ -185,19 +196,28 @@ contract StableCoinFarm is IFarm, ERC20, Ownable {
     fromData.investedAsset.sub(transferInvestedAsset);
   }
 
-  function setMarketingRate(uint256 _marketingRate) external onlyOwner {
+  function setMarketingRate(
+    uint256 _marketingRate /*onlyOwner*/
+  ) external {
     marketingRate = _marketingRate;
   }
 
-  function setControllerAddress(address _controllerAddress) external onlyOwner {
+  function setControllerAddress(address _controllerAddress)
+    external
+  /*onlyOwner*/
+  {
     controllerAddress = _controllerAddress;
   }
 
-  function setPause(bool _pause) external onlyOwner {
+  function setPause(
+    bool _pause /*onlyOwner*/
+  ) external {
     paused = _pause;
   }
 
-  function addStrategy(address strategy) external onlyOwner {
+  function addStrategy(
+    address strategy /*onlyOwner*/
+  ) external {
     bytes32 newId = IStrategy(strategy).getId();
     // Check if we simply replace / update
     for (uint256 i = 0; i < strategies.length; i++) {
@@ -225,7 +245,9 @@ contract StableCoinFarm is IFarm, ERC20, Ownable {
     }
   }
 
-  function removeStrategy(address strategy) external onlyOwner {
+  function removeStrategy(
+    address strategy /*onlyOwner*/
+  ) external {
     // Find the strategy, fill gap.
     uint256 numInserted = 0;
     for (uint256 i = 0; i < strategies.length; i++) {

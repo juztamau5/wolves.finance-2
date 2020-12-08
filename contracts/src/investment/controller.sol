@@ -8,13 +8,15 @@
 
 pragma solidity 0.6.5;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
+//import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/math/SafeMath.sol';
 
 import './interfaces/IController.sol';
 import './interfaces/IFarm.sol';
 
-contract Controller is IController, Ownable {
+contract Controller is
+  IController /*, Ownable */
+{
   using SafeMath for uint256;
 
   uint256 constant oneDayInBlocksMillion = 6500e6;
@@ -53,7 +55,9 @@ contract Controller is IController, Ownable {
     farm.lockedToken = farm.lockedToken.add(tokenCount);
   }
 
-  function registerFarm(address farm) external onlyOwner {
+  function registerFarm(
+    address farm /*onlyOwner*/
+  ) external {
     bytes32 farmName = keccak256(abi.encodePacked(IFarm(farm).farmName()));
     for (uint256 i = 0; i < farms.length; i++) {
       if (farms[i].farm == farm) return;
@@ -68,7 +72,9 @@ contract Controller is IController, Ownable {
     farms.push(Farm(farm, 0));
   }
 
-  function unregisterFarm(address farm) external onlyOwner {
+  function unregisterFarm(
+    address farm /*onlyOwner*/
+  ) external {
     uint256 newLength = 0;
     for (uint256 i = 0; i < farms.length; i++) {
       if (farms[i].farm != farm) {
@@ -79,12 +85,14 @@ contract Controller is IController, Ownable {
     if (newLength < farms.length) farms.pop();
   }
 
-  function collectFees() external onlyOwner {
+  function collectFees() external /*onlyOwner*/
+  {
     for (uint256 i = 0; i < farms.length; i++)
       IFarm(farms[i].farm).requestMarketingFee();
   }
 
-  function rebalance() external onlyOwner {
+  function rebalance() external /*onlyOwner*/
+  {
     for (uint256 i = 0; i < farms.length; i++) IFarm(farms[i].farm).rebalance();
   }
 
