@@ -16,8 +16,42 @@ require('hardhat-deploy-ethers');
 // Path to generated addresses.json file
 const GENERATED_ADDRESSES = 'src/dapp/config/addresses.json';
 
+// TODO: Qualified names
+//const ERC1155_CONTRACT = 'contracts/src/token/Token.sol:WolfToken';
+const TOKEN_CONTRACT = 'WolfToken';
+
 const func = async function (hardhat_re) {
-  const addresses = {};
+  const { deployments, getNamedAccounts } = hardhat_re;
+
+  const { deploy } = deployments;
+  const { deployer, teamWallet } = await getNamedAccounts();
+
+  const token_receipt = await deploy(TOKEN_CONTRACT, {
+    from: deployer,
+    args: [teamWallet],
+    log: true,
+    deterministicDeployment: true,
+
+    /* TODO: Diamond upgradeability support
+    owner: deployer,
+
+    facets: [TOKEN_CONTRACT],
+
+    // Has to be a non-zero 32bytes string (in hex format)
+    // TODO
+    deterministicSalt:
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+
+    execute: {
+      methodName: 'postUpgrade',
+      args: [],
+    },
+    */
+  });
+
+  const addresses = {
+    token: token_receipt.address.toLowerCase(),
+  };
 
   // Generate addresses.json file
   fs.writeFileSync(GENERATED_ADDRESSES, JSON.stringify(addresses));
