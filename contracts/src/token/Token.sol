@@ -8,10 +8,15 @@
 
 pragma solidity >=0.7.0 <0.8.0;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20Capped.sol';
-import '@openzeppelin/contracts/access/AccessControl.sol';
+import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/Initializable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20CappedUpgradeable.sol';
 
-contract WolfToken is ERC20Capped, AccessControl {
+contract WolfToken is
+  Initializable,
+  ERC20CappedUpgradeable,
+  AccessControlUpgradeable
+{
   /**
    * @dev The ERC 20 token name used by wallets to identify the token
    */
@@ -40,15 +45,18 @@ contract WolfToken is ERC20Capped, AccessControl {
   bytes32 public constant MINTER_ROLE = 'minter_role';
 
   /**
-   * @dev Construct a token instance
+   * @dev Initialize a token instance
+   *
+   * TODO: Access security
    *
    * @param _teamWallet The team wallet to receive initial supply
    */
-  constructor(address _teamWallet)
-    ERC20Capped(MAX_SUPPLY)
-    ERC20(TOKEN_NAME, TOKEN_SYMBOL)
-  {
+  function initialize(address teamWallet) public virtual initializer {
+    // Initialize ERC20Capped base
+    __ERC20Capped_init(MAX_SUPPLY);
+
     // Initialize ERC20 base
+    __ERC20_init(TOKEN_NAME, TOKEN_SYMBOL);
     _setupDecimals(TOKEN_DECIMALS);
 
     /*
@@ -62,7 +70,7 @@ contract WolfToken is ERC20Capped, AccessControl {
     _mint(_teamWallet, 11000 * 1e18);
 
     // Multi-sig teamwallet has initial admin rights, eg for adding minters
-    _setupRole(DEFAULT_ADMIN_ROLE, _teamWallet);
+    _setupRole(DEFAULT_ADMIN_ROLE, teamWallet);
   }
 
   /**

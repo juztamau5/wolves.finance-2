@@ -23,16 +23,14 @@ const TOKEN_CONTRACT = 'WolfToken';
 const func = async function (hardhat_re) {
   const { deployments, getNamedAccounts } = hardhat_re;
 
-  const { deploy } = deployments;
+  const { deploy, execute } = deployments;
   const { deployer, teamWallet } = await getNamedAccounts();
 
   const token_receipt = await deploy(TOKEN_CONTRACT, {
     from: deployer,
-    args: [teamWallet],
     log: true,
     deterministicDeployment: true,
 
-    /* TODO: Diamond upgradeability support
     owner: deployer,
 
     facets: [TOKEN_CONTRACT],
@@ -44,9 +42,8 @@ const func = async function (hardhat_re) {
 
     execute: {
       methodName: 'postUpgrade',
-      args: [],
+      args: [teamWallet],
     },
-    */
   });
 
   const addresses = {
@@ -55,6 +52,31 @@ const func = async function (hardhat_re) {
 
   // Generate addresses.json file
   fs.writeFileSync(GENERATED_ADDRESSES, JSON.stringify(addresses));
+
+  // TODO: Better initialization security
+  // TODO: Reinitialization detection
+  try {
+    console.log('Initializing token contract');
+    await execute(
+      TOKEN_CONTRACT,
+      {
+        from: deployer,
+        log: true,
+      },
+      'initialize',
+      deployer
+    );
+  } catch (err) {
+    // Verify transaction is reverted due to reinitialization
+    if (
+      err.message.search('Initializable: contract is already initialized') !==
+      -1
+    ) {
+      console.log(`Reverted (already initialized)`);
+    } else {
+      throw err;
+    }
+  }
 };
 
 module.exports = func;
