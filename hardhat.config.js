@@ -7,9 +7,30 @@
  */
 
 // Inject Hardhat plugins
+require('@nomiclabs/hardhat-ethers');
 require('hardhat-abi-exporter');
+require('hardhat-deploy');
+require('hardhat-deploy-ethers');
+
+// Gnosis safe address. Receives initial token supplies.
+const TEAM_WALLET_ADDRESS = '0x7Df8c0E18c6103B1f5037032ca02A960cd4F67E4';
 
 const config = {
+  namedAccounts: {
+    deployer: {
+      // By default take the first account as deployer
+      default: 0,
+
+      // Similarly on mainnet, take the first account as deployer. Note though
+      // that depending on how hardhat network are configured, the account 0 on
+      // one network can be different than on another.
+      1: 0,
+    },
+    teamWallet: {
+      // By default take the second account as team wallet
+      default: 1,
+    },
+  },
   solidity: {
     compilers: [
       {
@@ -58,6 +79,19 @@ const config = {
     tests: './test',
     cache: './cache',
     artifacts: './artifacts',
+
+    // Contains the deploy script that are executed upon invocation of
+    // `hardhat deploy` or `hardhat node`
+    deploy: './deploy',
+
+    // Contains the resulting deployments (contract addresses along their ABI,
+    // bytecode, metadata...)
+    deployments: './deployments',
+
+    // Contains artifacts that were pre-compiled. Useful if you want to upgrade
+    // to a new solidity version but want to keep using previously compiled
+    // contracts.
+    imports: 'imports',
   },
   abiExporter: {
     // Path to ABI export directory (relative to Hardhat root)

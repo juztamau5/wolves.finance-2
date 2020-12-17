@@ -17,7 +17,7 @@ Use `yarn run audit` when running on CI infrastructure.
 
 ### `yarn compile`
 
-Compiles the smart contracts.
+Compiles the smart contracts. Required for test cases.
 
 ### `yarn start`
 
